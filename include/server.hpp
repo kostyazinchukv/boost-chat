@@ -9,12 +9,14 @@ public:
     ~Server();
 
     void start();
-    void stop();
+    void stop(boost::asio::ip::tcp::socket& sock);
+    void exitSession(boost::asio::ip::tcp::socket& sock);
 
     void setPort(int p);
 private: 
     boost::asio::io_context ioc;
-    std::string address;
+    std::string header;
+    std::string body;
+    std::string host;
     int port;
-
 };

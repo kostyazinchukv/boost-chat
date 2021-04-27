@@ -1,13 +1,18 @@
 CXX = g++
 
-CXXFLAGS += -g -std=c++11 -Wall -pthread 
+CXXFLAGS += -g -std=c++11 -pthread 
 
-all: server
+
+all: server client
 
 clean: 
 	rm -fr *.o *.a
 
 re: clean all
 
+
 server: ./include/server.hpp
-	$(CXX) $(CXXFLAGS) -lboost_filesystem ./src/server.cpp ./src/mainServer.cpp
+	$(CXX) $(CXXFLAGS) -lboost_filesystem ./src/server.cpp ./src/mainServer.cpp -o srv
+
+client: ./include/client.hpp
+	$(CXX) $(CXXFLAGS) -lboost_filesystem ./src/client.cpp ./src/mainClient.cpp -o cl

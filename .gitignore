@@ -2,3 +2,6 @@
 *.out
 *.o
 *.a
+cl
+srv
+*.txt
