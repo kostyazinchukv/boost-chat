@@ -8,6 +8,6 @@ int main(int argc, char* argv[])
     std::cout<<"portSet\n";
     server.setPort(9999);
     std::cout<<"start\n";
-    server.start();
+    //server.start();
     return 0;
 }
