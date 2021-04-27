@@ -38,57 +38,55 @@ void Client::menu()
     {
         std::cout<<"Client$ "<<std::flush;
         std::getline(std::cin, command);
-        std::cout<<std::endl<<command<<std::endl;
         if(command == "help")
         {
             help();
         }
         if(command == "connect")
         {
+            std::cout<<"Establishing connection"<<std::endl;
             connect(socket);
+            std::cout<<"Connected\nReady to send message"<<std::endl;
         }
         if(command == "send")
         {
             send(socket);
+            std::cout<<"Sent"<<std::endl;
         }
         if(command == "exit")
         {
+            std::cout<<"Exit yout session"<<std::endl;
             exitSession(socket);
         }
-        else
+        if((command != "help") && (command != "connect") && (command != "send") && (command != "exit"))
         {
-            std::cout<<"Usage: <command>. Go to help command to see info"<<std::endl;
+            std::cout<<"Usage: <command>. Go to <help> command to see info"<<std::endl;
         }
     }
 }
 void Client::connect(boost::asio::ip::tcp::socket& sock)
 { 
     boost::system::error_code ec;
-    //boost::asio::ip::tcp::endpoint address(boost::asio::ip::address::from_string("127.0.0.1"), port);
     boost::asio::ip::tcp::resolver resolver(ioc);
     boost::asio::ip::tcp::resolver::results_type endpoints = 
                             resolver.resolve(host, std::to_string(port));
-    //boost::asio::ip::tcp::socket socket(ioc);
     boost::asio::connect(sock, endpoints);
-    // if(ec)
-    // {
-    //     std::cerr<<ec<<std::endl;
-    // }
-    // for(;;)
-    // {
-    //     //std::getline(std::cin, data);
-    //     createMessage(message, data);
-    //     boost::asio::write(socket, boost::asio::buffer(message));
-    //     //socket.write_some(boost::asio::buffer(message));   
-    // }
-    // socket.shutdown(boost::asio::socket_base::shutdown_both);
-    // socket.close();
+
 }
 
 void Client::send(boost::asio::ip::tcp::socket& sock)
-{
+{   
+    std::cout<<"Message: ";
+    std::getline(std::cin, data);
     createMessage(message, data);
-    boost::asio::write(sock, boost::asio::buffer(message));
+    try
+    {
+        boost::asio::write(sock, boost::asio::buffer(message));
+    }
+    catch(std::exception& ex)
+    {
+        std::cout<<"Error occured. Check if your connect to open socket"<<std::endl;
+    }
 }
 
 void Client::exitSession(boost::asio::ip::tcp::socket& sock)
