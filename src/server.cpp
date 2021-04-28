@@ -45,7 +45,7 @@ void Server::menu()
         {
             exitSession(socket);
         }
-        else if(command.find("setport") != std::string::npos)
+        else if(command.find("setport ") != std::string::npos)
         {
             std::string p = command.substr(command.find(" ") + 1, command.size());
             for(auto& it : p)
@@ -55,6 +55,16 @@ void Server::menu()
                     std::cout<<"Usage setport <int>. Check for misspelling and given value"<<std::endl;
                     break;
                 }
+                
+            }
+            if(atoi(p.c_str())<1024)
+            {
+                std::cout<<"System port. Choose value above 1024"<<std::endl;
+                break;
+            }
+            else
+            {
+                setPort(atoi(p.c_str()));
             }
         }
         else{
