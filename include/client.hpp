@@ -15,6 +15,7 @@ class Client{
         void exitSession(boost::asio::ip::tcp::socket& sock);
         void help();
 
+        int fetchPort();
     private:
         int port;
         std::string host;

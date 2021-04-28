@@ -15,11 +15,8 @@ public:
     void help();
     void setPort(int p);
 
-    void parseIncome(std::vector<char>& message);
 private: 
     boost::asio::io_context ioc;
-    std::string header;
-    std::string body;
     std::string host;
     int port;
 };

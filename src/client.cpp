@@ -1,9 +1,13 @@
 #include "../include/client.hpp"
 #include <stdlib.h>
+#include <fstream>
+
+static bool isConnected = false;
+
 Client::Client(int p, std::string h, std::string d) 
 : port(p), host(h), data(d)
 {
-    message.resize(1000);
+    //message.resize(1000);
 }
 
 Client::~Client()
@@ -13,6 +17,7 @@ Client::~Client()
 
 void Client::createMessage(std::vector<char>& container, std::string data)
 {
+    message.clear();
     std::string header = "Content-Lenght: " + std::to_string(data.size());
     for(int i = 0; i<header.size(); i++)
     {
@@ -44,33 +49,51 @@ void Client::menu()
         }
         if(command == "connect")
         {
-            std::cout<<"Establishing connection"<<std::endl;
+            std::cout<<"\tEstablishing connection"<<std::endl;
             connect(socket);
-            std::cout<<"Connected\nReady to send message"<<std::endl;
         }
         if(command == "send")
         {
             send(socket);
-            std::cout<<"Sent"<<std::endl;
         }
         if(command == "exit")
         {
-            std::cout<<"Exit yout session"<<std::endl;
+            std::cout<<"\tExit yout session"<<std::endl;
             exitSession(socket);
         }
         if((command != "help") && (command != "connect") && (command != "send") && (command != "exit"))
         {
-            std::cout<<"Usage: <command>. Go to <help> command to see info"<<std::endl;
+            std::cout<<"\tUsage: <command>. Go to <help> command to see info"<<std::endl;
         }
     }
 }
 void Client::connect(boost::asio::ip::tcp::socket& sock)
 { 
+    fetchPort();
     boost::system::error_code ec;
     boost::asio::ip::tcp::resolver resolver(ioc);
     boost::asio::ip::tcp::resolver::results_type endpoints = 
                             resolver.resolve(host, std::to_string(port));
-    boost::asio::connect(sock, endpoints);
+    try
+    {
+        if(!isConnected)
+        {
+            isConnected = true;
+            boost::asio::connect(sock, endpoints);
+            std::cout<<"\tConnected\n\tReady to send message"<<std::endl;
+        }
+        else
+        {
+            std::cout<<"\tAlready connected"<<std::endl;
+        }
+
+    }
+    catch(const std::exception& e)
+    {
+        std::cout<<"\tCannot connect. Check if server is up"<<std::endl;
+        return;
+    }
+    
 
 }
 
@@ -81,7 +104,10 @@ void Client::send(boost::asio::ip::tcp::socket& sock)
     createMessage(message, data);
     try
     {
+
         boost::asio::write(sock, boost::asio::buffer(message));
+        std::cout<<"\tSent"<<std::endl;
+
     }
     catch(std::exception& ex)
     {
@@ -91,6 +117,7 @@ void Client::send(boost::asio::ip::tcp::socket& sock)
 
 void Client::exitSession(boost::asio::ip::tcp::socket& sock)
 {
+    sock.shutdown(boost::asio::ip::tcp::socket::shutdown_send);
     sock.close();
     exit(0);
 }
@@ -103,4 +130,18 @@ void Client::help()
     info += "\n\tsend <message>--> send message to open socket\n";
     info += "\n\texit --> close slient session\n";
     std::cout<<info<<std::flush;
+}
+
+int Client::fetchPort()
+{
+    std::ifstream portFile;
+    std::string p;
+    portFile.open("port.txt");
+    if(portFile.is_open())
+    {
+        portFile >> p;
+    }
+    port = atoi(p.c_str());
+    portFile.close();
+    return port;
 }
