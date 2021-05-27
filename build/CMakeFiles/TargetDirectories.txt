@@ -1,0 +1,4 @@
+/home/kostyazinchuk/testGL/build/CMakeFiles/rebuild_cache.dir
+/home/kostyazinchuk/testGL/build/CMakeFiles/edit_cache.dir
+/home/kostyazinchuk/testGL/build/CMakeFiles/CLIENT.dir
+/home/kostyazinchuk/testGL/build/CMakeFiles/SERVER.dir

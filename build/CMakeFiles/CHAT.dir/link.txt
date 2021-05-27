@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/CHAT.dir/src/client.cpp.o CMakeFiles/CHAT.dir/src/server.cpp.o CMakeFiles/CHAT.dir/src/mainClient.cpp.o CMakeFiles/CHAT.dir/src/mainServer.cpp.o  -o CHAT 
