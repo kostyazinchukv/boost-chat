@@ -1,4 +1,4 @@
-#include "../include/server.hpp"
+#include "server.hpp"
 #include <vector>
 #include <stdlib.h>
 #include <fstream>
