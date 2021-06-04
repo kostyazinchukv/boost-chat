@@ -10,7 +10,7 @@
 static bool isSocketClose = false;
 static bool socketCreated = false;
 
-Server::Server() {
+Server::Server() noexcept {
   host_ = "127.0.0.1";
   port_= 8888;
 }
