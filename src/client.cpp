@@ -71,7 +71,7 @@ void Client::menu() {
       connect(&socket);
     }
     if (command == "send") {
-      send(&socket);
+      send(socket);
     }
     if (command == "exit") {
       std::cout << "\tExit yout session" << std::endl;
@@ -109,7 +109,7 @@ void Client::connect(boost::asio::ip::tcp::socket* sock) {
   }
 }
 
-void Client::send(boost::asio::ip::tcp::socket* sock) {
+void Client::send(boost::asio::ip::tcp::socket& sock) {
   std::cout << "Message: ";
   std::getline(std::cin, _data);
   createMessage(&_message, _data);

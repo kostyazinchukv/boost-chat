@@ -6,7 +6,7 @@ set(CMAKE_CXX_FLAGS "-pthread -Wall -Wextra -pedantic -Werror -fsanitize=address
 set(LINK_TYPE_STATIC ON)
 set(CMAKE_CXX_CLANG_TIDY 
         clang-tidy;
-        --header-filter=.,
+        -header-filter=.,
         --checks=-clang-analyzer-*,-clang-analyzer-cplusplus-*,-cppcoreguidelines-*;
         )
 
@@ -21,7 +21,7 @@ set(CLIENT_PROJECT_FILES
 )
 
 if(${LINK_TYPE_STATIC})
-    add_library(server_lib STATIC
+    add_library(server_lib STATIC 
         ./include/server.hpp
         ./src/server.cpp
     )

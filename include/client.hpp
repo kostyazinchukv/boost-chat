@@ -17,7 +17,7 @@ class Client {
   void createMessage(std::vector<char>* container, const std::string& data);
   void menu();
   void connect(boost::asio::ip::tcp::socket* sock);
-  void send(boost::asio::ip::tcp::socket* sock);
+  void send(boost::asio::ip::tcp::socket& sock);
   static void exitSession(boost::asio::ip::tcp::socket* sock);
   static void help();
 
