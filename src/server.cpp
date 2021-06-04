@@ -1,6 +1,5 @@
 #include "server.hpp"
 
-
 #define SYSTEM_PORTS_VALUES 1024
 #define DECIMAL_ASCII_LOWER_BOUND 47
 #define DECIMAL_ASCII_UPPER_BOUND 57
@@ -12,70 +11,69 @@ static bool is_socket_close = false;
 static bool socket_created = false;
 
 Server::Server(int port, std::string host) noexcept
-  : _port(port), _host(std::move(host)){
+    : _port(port), _host(std::move(host)) {
   _socket = std::make_unique<boost::asio::ip::tcp::socket>(_ioc);
 }
-Server::Server(Server&& other) noexcept
-{
- _port = other._port;
- _host = other._host;
- _socket = std::move(other._socket);
+Server::Server(Server&& other) noexcept {
+  _port = other._port;
+  _host = other._host;
+  _socket = std::move(other._socket);
 
- other._port = -1;
- other._host.clear();
+  other._port = -1;
+  other._host.clear();
 }
-Server& Server::operator=(Server&& other) noexcept
-{
-  if(this == &other)
-  {
+Server& Server::operator=(Server&& other) noexcept {
+  if (this == &other) {
     return *this;
   }
- _port = other._port;
- _host = other._host;
- _socket = std::move(other._socket);
+  _port = other._port;
+  _host = other._host;
+  _socket = std::move(other._socket);
 
- other._port = -1;
- other._host.clear();
+  other._port = -1;
+  other._host.clear();
 
- return *this;
+  return *this;
 }
 
 Server::~Server() { _ioc.stop(); }
 
 void Server::menu() {
-  char *p_end;
+  char* p_end;
   std::string command;
-  std::thread start_thread;// NOLINT
-  boost::asio::ip::tcp::socket socket(_ioc);// NOLINT
+  std::thread start_thread;                   // NOLINT
+  boost::asio::ip::tcp::socket socket(_ioc);  // NOLINT
   for (;;) {
     std::cout << "Server$ " << std::flush;
     std::getline(std::cin, command);
     if (command == "help") {
       help();
     } else if (command == "start") {
-      start_thread = std::thread(&Server::start, this, std::ref(socket));// NOLINT
-      start_thread.detach();// NOLINT
+      start_thread =
+          std::thread(&Server::start, this, std::ref(socket));  // NOLINT
+      start_thread.detach();                                    // NOLINT
     } else if (command == "stop") {
-      start_thread.~thread();// NOLINT
+      start_thread.~thread();  // NOLINT
       stop();
     } else if (command == "exit") {
       exitSession();
-      //NOLINTNEXTLINE
+      // NOLINTNEXTLINE
     } else if (command.find("setport ") != std::string::npos) {
-      //NOLINTNEXTLINE
+      // NOLINTNEXTLINE
       std::string p = command.substr(command.find(" ") + 1, command.size());
       for (auto& it : p) {
-        if (static_cast<int>(it) < DECIMAL_ASCII_LOWER_BOUND || static_cast<int>(it) > DECIMAL_ASCII_UPPER_BOUND) {
+        if (static_cast<int>(it) < DECIMAL_ASCII_LOWER_BOUND ||
+            static_cast<int>(it) > DECIMAL_ASCII_UPPER_BOUND) {
           std::cout
               << "Usage setport <int>. Check for misspelling and given value"
               << std::endl;
           break;
         }
       }
-      if (strtol(p.c_str(), &p_end, BASE) < SYSTEM_PORTS_VALUES ) {
+      if (strtol(p.c_str(), &p_end, BASE) < SYSTEM_PORTS_VALUES) {
         std::cout << "System port. Choose value above 1024" << std::endl;
         break;
-      } 
+      }
       setPort(static_cast<int>(strtol(p.c_str(), &p_end, BASE)));
 
     } else {
@@ -96,12 +94,12 @@ void Server::start() {
     socket_created = true;
     // NOLINTNEXTLINE
     boost::asio::ip::tcp::endpoint address(
-                        boost::asio::ip::address::from_string(_host), _port);// NOLINT
-    boost::asio::ip::tcp::acceptor acc(_ioc, address);// NOLINT
-    acc.accept(*_socket);// NOLINT
+        boost::asio::ip::address::from_string(_host), _port);  // NOLINT
+    boost::asio::ip::tcp::acceptor acc(_ioc, address);         // NOLINT
+    acc.accept(*_socket);                                      // NOLINT
     if (is_socket_close) {
-      acc.close();// NOLINT
-      acc.accept(*_socket);// NOLINT
+      acc.close();           // NOLINT
+      acc.accept(*_socket);  // NOLINT
     }
   }
 
@@ -117,7 +115,8 @@ void Server::start() {
 }
 void Server::stop() {
   try {
-    _socket->shutdown(boost::asio::ip::tcp::socket::shutdown_receive);// NOLINT
+    _socket->shutdown(
+        boost::asio::ip::tcp::socket::shutdown_receive);  // NOLINT
     _ioc.stop();
     is_socket_close = true;
     std::cout << "Closed" << std::endl;
@@ -142,13 +141,11 @@ void Server::help() {
 void Server::setPort(int p) {
   _port = p;
   std::ofstream port_file;
-  port_file.open("port.txt");// NOLINT
+  port_file.open("port.txt");  // NOLINT
   if (!port_file.is_open()) {
     std::cout << "Cannot open the file to write port value" << std::endl;
     return;
   }
   port_file << std::to_string(_port);
-  port_file.close();// NOLINT
+  port_file.close();  // NOLINT
 }
-
-

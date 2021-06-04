@@ -1,14 +1,13 @@
-#ifndef SERVER_HPP // NOLINT
-#define SERVER_HPP // NOLINT
+#ifndef SERVER_HPP  // NOLINT
+#define SERVER_HPP  // NOLINT
 
-#include <boost/asio.hpp>// NOLINT
-#include <iostream>// NOLINT
-#include <cstdlib>// NOLINT
-
-#include <algorithm>// NOLINT
-#include <fstream>// NOLINT
-#include <thread>// NOLINT
-#include <vector>// NOLINT
+#include <algorithm>       // NOLINT
+#include <boost/asio.hpp>  // NOLINT
+#include <cstdlib>         // NOLINT
+#include <fstream>         // NOLINT
+#include <iostream>        // NOLINT
+#include <thread>          // NOLINT
+#include <vector>          // NOLINT
 
 class Server {
  public:
@@ -33,4 +32,4 @@ class Server {
   boost::asio::io_context _ioc;
   std::unique_ptr<boost::asio::ip::tcp::socket> _socket;
 };
-#endif // SERVER_HPP
+#endif  // SERVER_HPP
