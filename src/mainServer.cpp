@@ -1,6 +1,6 @@
 #include "server.hpp"
 
-int main(int argc, char* argv[]) {
+int main() {
   Server server;
   server.setPort(1111);
   server.menu();

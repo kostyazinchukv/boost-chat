@@ -2,9 +2,13 @@ cmake_minimum_required(VERSION 3.10.2)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_COMPILER /usr/bin/g++)
-set(CMAKE_CXX_FLAGS "-pthread")
+set(CMAKE_CXX_FLAGS "-pthread -Wall -Wextra -pedantic -Werror -fsanitize=address,undefined")
 set(LINK_TYPE_STATIC ON)
-
+set(CMAKE_CXX_CLANG_TIDY 
+        clang-tidy;
+        --header-filter=.,
+        --checks=-clang-analyzer-*,-clang-analyzer-cplusplus-*,-cppcoreguidelines-*;
+        )
 
 project(CHAT CXX)
 
@@ -48,8 +52,8 @@ add_executable(CLIENT
     ${CLIENT_PROJECT_FILES}  
 )
 
-target_include_directories(client_lib PUBLIC ./include)
-target_include_directories(server_lib PUBLIC ./include)
+target_include_directories(client_lib PUBLIC ./include SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
+target_include_directories(server_lib PUBLIC ./include SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
 
 target_link_libraries(SERVER PRIVATE server_lib)
 target_link_libraries(CLIENT PRIVATE client_lib)

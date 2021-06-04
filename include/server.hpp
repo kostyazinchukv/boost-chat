@@ -3,7 +3,7 @@
 
 class Server {
  public:
-  Server();
+  Server() noexcept;
   Server(const Server&) = delete;
   Server& operator=(const Server&) = delete;
   ~Server();
@@ -16,7 +16,7 @@ class Server {
   void setPort(int p);
 
  private:
-  boost::asio::io_context ioc;
-  std::string host;
-  int port;
+  boost::asio::io_context ioc_;
+  std::string host_;
+  int port_;
 };

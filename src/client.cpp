@@ -1,37 +1,64 @@
 #include "client.hpp"
 
-#include <stdlib.h>
+#define BASE 10
+static bool is_connected = false;
 
-#include <fstream>
+Client::Client(int p, std::string h, std::string d) noexcept
+    : _port(p), _host(std::move(h)), _data(std::move(d)) {
+      _port = p;
+    }
+Client::Client(Client&& other) noexcept {
+  _port = other._port;
+  _host = other._host;
+  _data = other._data;
+  for (auto& elem : other._message) {
+    _message.push_back(elem);
+  }
+  other._port = -1;
+  other._data.clear();
+  other._host.clear();
+  other._message.clear();
 
-static bool isConnected = false;
-
-Client::Client(int p, std::string h, std::string d)
-    : port(p), host(h), data(d) {
-  // message.resize(1000);
 }
-
+Client& Client::operator=(Client&& other) noexcept {
+  if (this == &other) {
+    return *this;
+  }
+  this->_port = other._port;
+  this->_host = other._host;
+  this->_data = other._data;
+  for (auto& elem : other._message) {
+    this->_message.push_back(elem);
+  }
+  other._port = -1;
+  other._data.clear();
+  other._host.clear();
+  other._message.clear();
+  return *this;
+}
 Client::~Client() { ioc.stop(); }
 
-void Client::createMessage(std::vector<char>& container, std::string data) {
-  message.clear();
+void Client::createMessage(std::vector<char>* container,
+                           const std::string& data) {
+  _message.clear();
   std::string header = "Content-Lenght: " + std::to_string(data.size());
-  for (int i = 0; i < header.size(); i++) {
-    container.push_back(header[i]);
+  for (const auto& i : header) {
+    container->push_back(i);
   }
-  container.push_back('\r');
-  container.push_back('\n');
-  for (int i = 0; i < data.size(); i++) {
-    container.push_back(data[i]);
+  container->push_back('\r');
+  container->push_back('\n');
+  for (const auto& i : data) {
+    container->push_back(i);
   }
-  container.push_back('\r');
-  container.push_back('\n');
-  container.push_back('\r');
-  container.push_back('\n');
+  container->push_back('\r');
+  container->push_back('\n');
+  container->push_back('\r');
+  container->push_back('\n');
 }
 
 void Client::menu() {
   std::string command;
+  // NOLINTNEXTLINE
   boost::asio::ip::tcp::socket socket(ioc);
   for (;;) {
     std::cout << "Client$ " << std::flush;
@@ -41,14 +68,14 @@ void Client::menu() {
     }
     if (command == "connect") {
       std::cout << "\tEstablishing connection" << std::endl;
-      connect(socket);
+      connect(&socket);
     }
     if (command == "send") {
-      send(socket);
+      send(&socket);
     }
     if (command == "exit") {
       std::cout << "\tExit yout session" << std::endl;
-      exitSession(socket);
+      exitSession(&socket);
     }
     if ((command != "help") && (command != "connect") && (command != "send") &&
         (command != "exit")) {
@@ -57,16 +84,20 @@ void Client::menu() {
     }
   }
 }
-void Client::connect(boost::asio::ip::tcp::socket& sock) {
+void Client::connect(boost::asio::ip::tcp::socket* sock) {
   fetchPort();
+  // NOLINTNEXTLINE
   boost::system::error_code ec;
+  // NOLINTNEXTLINE
   boost::asio::ip::tcp::resolver resolver(ioc);
+  // NOLINTNEXTLINE
   boost::asio::ip::tcp::resolver::results_type endpoints =
-      resolver.resolve(host, std::to_string(port));
+      resolver.resolve(_host, std::to_string(_port));
   try {
-    if (!isConnected) {
-      isConnected = true;
-      boost::asio::connect(sock, endpoints);
+    if (!is_connected) {
+      is_connected = true;
+      // NOLINTNEXTLINE
+      boost::asio::connect(*sock, endpoints);
       std::cout << "\tConnected\n\tReady to send message" << std::endl;
     } else {
       std::cout << "\tAlready connected" << std::endl;
@@ -78,12 +109,12 @@ void Client::connect(boost::asio::ip::tcp::socket& sock) {
   }
 }
 
-void Client::send(boost::asio::ip::tcp::socket& sock) {
+void Client::send(boost::asio::ip::tcp::socket* sock) {
   std::cout << "Message: ";
-  std::getline(std::cin, data);
-  createMessage(message, data);
+  std::getline(std::cin, _data);
+  createMessage(&_message, _data);
   try {
-    boost::asio::write(sock, boost::asio::buffer(message));
+    boost::asio::write(sock, boost::asio::buffer(_message));// NOLINT
     std::cout << "\tSent" << std::endl;
 
   } catch (std::exception& ex) {
@@ -92,14 +123,17 @@ void Client::send(boost::asio::ip::tcp::socket& sock) {
   }
 }
 
-void Client::exitSession(boost::asio::ip::tcp::socket& sock) {
-  sock.shutdown(boost::asio::ip::tcp::socket::shutdown_send);
-  sock.close();
+void Client::exitSession(boost::asio::ip::tcp::socket* sock) {
+  // NOLINTNEXTLINE
+  sock->shutdown(boost::asio::ip::tcp::socket::shutdown_send);
+  // NOLINTNEXTLINE
+  sock->close();
   exit(0);
 }
 
 void Client::help() {
-  std::string info = "Usage: <command>\nCommands:";
+  std::string info;
+  info += "Usage: <command>\nCommands:";
   info += "\n\thelp --> This message\n";
   info += "\n\tconnect --> Connect to open socket\n";
   info += "\n\tsend <message>--> send message to open socket\n";
@@ -108,13 +142,15 @@ void Client::help() {
 }
 
 int Client::fetchPort() {
-  std::ifstream portFile;
+  std::ifstream port_file;
   std::string p;
-  portFile.open("port.txt");
-  if (portFile.is_open()) {
-    portFile >> p;
+  port_file.open("port.txt");// NOLINT
+  if (port_file.is_open()) {
+    port_file >> p;
   }
-  port = atoi(p.c_str());
-  portFile.close();
-  return port;
+  char* p_end;
+  _port = static_cast<int>(strtol(p.c_str(), &p_end, BASE));
+  // NOLINTNEXTLINE
+  port_file.close();
+  return _port;
 }

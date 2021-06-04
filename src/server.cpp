@@ -11,15 +11,15 @@ static bool isSocketClose = false;
 static bool socketCreated = false;
 
 Server::Server() {
-  host = "127.0.0.1";
-  port = 8888;
+  host_ = "127.0.0.1";
+  port_= 8888;
 }
-Server::~Server() { ioc.stop(); }
+Server::~Server() { ioc_.stop(); }
 
 void Server::menu() {
   std::string command;
   std::thread startThread;
-  boost::asio::ip::tcp::socket socket(ioc);
+  boost::asio::ip::tcp::socket socket(ioc_);
   for (;;) {
     std::cout << "Server$ " << std::flush;
     std::getline(std::cin, command);
@@ -56,8 +56,8 @@ void Server::menu() {
   }
 }
 void Server::start(boost::asio::ip::tcp::socket& sock) {
-  if (ioc.stopped()) {
-    ioc.run();
+  if (ioc_.stopped()) {
+    ioc_.run();
   }
   std::string buff;
   buff.resize(100);
@@ -66,8 +66,8 @@ void Server::start(boost::asio::ip::tcp::socket& sock) {
   } else {
     socketCreated = true;
     boost::asio::ip::tcp::endpoint address(
-        boost::asio::ip::address::from_string(host), port);
-    boost::asio::ip::tcp::acceptor acc(ioc, address);
+        boost::asio::ip::address::from_string(host_), port_);
+    boost::asio::ip::tcp::acceptor acc(ioc_, address);
     acc.accept(sock);
     if (isSocketClose) {
       acc.close();
@@ -88,7 +88,7 @@ void Server::start(boost::asio::ip::tcp::socket& sock) {
 void Server::stop(boost::asio::ip::tcp::socket& sock) {
   try {
     sock.shutdown(boost::asio::ip::tcp::socket::shutdown_receive);
-    ioc.stop();
+    ioc_.stop();
     isSocketClose = true;
     std::cout << "Closed" << std::endl;
   } catch (const std::exception& e) {
@@ -109,14 +109,14 @@ void Server::help() {
   std::cout << info << std::flush;
 }
 void Server::setPort(int p) {
-  port = p;
+  port_ = p;
   std::ofstream portFile;
   portFile.open("port.txt");
   if (!portFile.is_open()) {
     std::cout << "Cannot open the file to write port value" << std::endl;
     return;
   } else {
-    portFile << std::to_string(port);
+    portFile << std::to_string(port_);
   }
   portFile.close();
 }
