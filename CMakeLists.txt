@@ -1,16 +1,17 @@
 cmake_minimum_required(VERSION 3.10.2)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_COMPILER /usr/bin/g++)
-set(CMAKE_CXX_FLAGS "-pthread -Wall -Wextra -pedantic -Werror -fsanitize=address,undefined")
-set(LINK_TYPE_STATIC ON)
-set(CMAKE_CXX_CLANG_TIDY 
-        clang-tidy;
-        -header-filter=.,
-        --checks=-clang-analyzer-*,-clang-analyzer-cplusplus-*,-cppcoreguidelines-*;
-        )
-
 project(CHAT CXX)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED)
+set(CMAKE_CXX_FLAGS "-pthread -Wall -Wextra -pedantic -Werror -fsanitize=address,undefined")
+
+set(CMAKE_CXX_CLANG_TIDY
+        clang-tidy;
+        -header-filter=.;
+        -checks=-clang-analyzer-*,-clang-analyzer-cplusplus-*,-cppcoreguidelines-*;
+        -warnings-as-errors=*;)
+
 
 set(SERVER_PROJECT_FILES
     ./src/mainServer.cpp
@@ -20,6 +21,7 @@ set(CLIENT_PROJECT_FILES
     ./src/mainClient.cpp
 )
 
+set(LINK_TYPE_STATIC ON)
 if(${LINK_TYPE_STATIC})
     add_library(server_lib STATIC 
         ./include/server.hpp
