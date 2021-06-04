@@ -1,22 +1,36 @@
-#include <boost/asio.hpp>
-#include <iostream>
+#ifndef SERVER_HPP // NOLINT
+#define SERVER_HPP // NOLINT
+
+#include <boost/asio.hpp>// NOLINT
+#include <iostream>// NOLINT
+#include <cstdlib>// NOLINT
+
+#include <algorithm>// NOLINT
+#include <fstream>// NOLINT
+#include <thread>// NOLINT
+#include <vector>// NOLINT
 
 class Server {
  public:
-  Server() noexcept;
-  Server(const Server&) = delete;
-  Server& operator=(const Server&) = delete;
+  Server() = default;
+  Server(int port, std::string host) noexcept;
+  Server(const Server& other) = delete;
+  Server& operator=(const Server& other) = delete;
+  Server(Server&& other) noexcept;
+  Server& operator=(Server&& other) noexcept;
   ~Server();
 
   void menu();
-  void start(boost::asio::ip::tcp::socket& sock);
-  void stop(boost::asio::ip::tcp::socket& sock);
-  void exitSession(boost::asio::ip::tcp::socket& sock);
-  void help();
+  void start();
+  void stop();
+  void exitSession();
   void setPort(int p);
+  static void help();
 
  private:
-  boost::asio::io_context ioc_;
-  std::string host_;
-  int port_;
+  int _port{};
+  std::string _host;
+  boost::asio::io_context _ioc;
+  std::unique_ptr<boost::asio::ip::tcp::socket> _socket;
 };
+#endif // SERVER_HPP
