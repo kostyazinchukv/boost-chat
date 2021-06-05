@@ -4,7 +4,7 @@ project(CHAT CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED)
-set(CMAKE_CXX_FLAGS "-pthread -Wall -Wextra -pedantic -Werror -fsanitize=address,undefined")
+set(CMAKE_CXX_FLAGS "-g -pthread -Wall -Wextra -pedantic -Werror -fsanitize=address,undefined")
 
 set(CMAKE_CXX_CLANG_TIDY
         clang-tidy;

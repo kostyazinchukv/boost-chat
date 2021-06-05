@@ -41,19 +41,14 @@ Server::~Server() { _ioc.stop(); }
 void Server::menu() {
   char* p_end;
   std::string command;
-  std::thread start_thread;                   // NOLINT
-  boost::asio::ip::tcp::socket socket(_ioc);  // NOLINT
   for (;;) {
     std::cout << "Server$ " << std::flush;
     std::getline(std::cin, command);
     if (command == "help") {
       help();
     } else if (command == "start") {
-      start_thread =
-          std::thread(&Server::start, this, std::ref(socket));  // NOLINT
-      start_thread.detach();                                    // NOLINT
+      start();
     } else if (command == "stop") {
-      start_thread.~thread();  // NOLINT
       stop();
     } else if (command == "exit") {
       exitSession();
@@ -83,20 +78,32 @@ void Server::menu() {
   }
 }
 void Server::start() {
+  std::cout << " in start" << std::endl;
   if (_ioc.stopped()) {
     _ioc.run();
   }
+  std::cout << "before _socket" << std::endl;
+  std::cout << "after _socket" << std::endl;
   std::string buff;
   buff.resize(RESIZE_AMOUNT);
   boost::system::error_code ec;
   if (socket_created) {
+    std::cout << "_sokcet already creted" << std::endl;
+
   } else {
+    std::cout << "_socket creation" << std::endl;
+
     socket_created = true;
     // NOLINTNEXTLINE
     boost::asio::ip::tcp::endpoint address(
         boost::asio::ip::address::from_string(_host), _port);  // NOLINT
-    boost::asio::ip::tcp::acceptor acc(_ioc, address);         // NOLINT
-    acc.accept(*_socket);                                      // NOLINT
+    std::cout << "here1" << std::endl;
+    boost::asio::ip::tcp::acceptor acc(_ioc, address);  // NOLINT
+    std::cout << "here2" << std::endl;
+
+    acc.accept(*_socket);  // NOLINT
+    std::cout << "_socket accept" << std::endl;
+
     if (is_socket_close) {
       acc.close();           // NOLINT
       acc.accept(*_socket);  // NOLINT
